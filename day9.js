@@ -52,6 +52,17 @@ function contiguousSet(numbers, matching) {
     return found;
 }
 
-const contSet = contiguousSet(numbers, 25918798).sort((a, b) => a - b);
+function contiguousSet2(numbers, matching) {
+    let cont = [];
+    let sum = 0;
+    while(sum !== matching) {
+        if(sum < matching) cont.push(numbers.shift())
+        if(sum > matching) cont.shift();
+        sum = cont.reduce((acc, curr) => acc + curr, 0)
+    }
+    return cont
+}
+
+const contSet = contiguousSet2(numbers, 25918798).sort((a, b) => a - b);
 const sortedContSet = contSet.sort((a, b) => a - b);
-console.log(sortedContSet[0] + sortedContSet[sortedContSet.length - 1]);
+console.log(sortedContSet[0] + sortedContSet[sortedContSet.length - 1]); //3340942

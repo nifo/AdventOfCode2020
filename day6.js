@@ -1,4 +1,5 @@
-const fs = require('fs')
+const fs = require('fs');
+const { Z_STREAM_END } = require('zlib');
 
 const groups = fs.readFileSync('./input6.txt')
                  .toString()
@@ -20,6 +21,29 @@ const counts = groups.reduce((acc, group) => {
     return acc + counter.size;
 }, 0)
 console.log(counts);
+
+// Refined
+
+// missing JS function
+function setUnion(A, B) {
+    return new Set([...A, ...B])
+}
+
+// const counts2 = groups.reduce((accGroup, group) => {
+//     return accGroup + group.reduce((accPerson, person) => {
+//         return setUnion(accPerson, new Set(...person));
+//     }, new Set()).size;
+// }, 0);
+// console.log(counts2);
+// const counts2 = groups.reduce((acc, group) => {
+//     let counter = new Set()
+//     for(let personAnswer of group) {
+//         counter = setUnion(counter, new Set(...personAnswer));
+//     }
+//     return acc + counter.size;
+// }, 0)
+// console.log(counts2);
+// /Refined 
 
 function addDefaultArray(obj, key, value) {
     if(key in obj) obj[key] = obj[key].concat(value);

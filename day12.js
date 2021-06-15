@@ -103,16 +103,20 @@ const moveToWaypoint = ({ times }) => {
   }
 };
 
-// F45, R90, S5 etc.
-for(instruction of instructions) {
-  const [action, stringValue] = instruction.split(/(\d+)/)
-  const value = Number(stringValue)
+const parseInstruction = (instruction) => {
+  // F45, R90, S5 etc.
+  return {
+    command: instruction[0],
+    value: Number(instruction.slice(1)),
+  };
+};
 
-  if (['N', 'S', 'E', 'W'].includes(action)) {
-    moveWaypoint({ latitude: action, amount: value });
-  } else if (['L', 'R'].includes(action)) {
-    direction = rotate({ direction: action, amount: value });
-  } else if (action == 'F') {
+for(const { command, value } of instructions.map(parseInstruction)) {
+  if (['N', 'S', 'E', 'W'].includes(command)) {
+    moveWaypoint({ latitude: command, amount: value });
+  } else if (['L', 'R'].includes(command)) {
+    rotate({ direction: command, amount: value });
+  } else if (command == 'F') {
     moveToWaypoint({ times: value });
   }
 }

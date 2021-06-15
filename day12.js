@@ -68,9 +68,53 @@ const manhattanDistance = (x, y) => {
 
 console.log(manhattanDistance(position.x, position.y));
 
-// const globalDirections = ['N', 'E', 'S', 'W'];
-// direction = 'E'
-// console.log(turn('R', 90)) // S
-// console.log(turn('R', 180)) // w
-// console.log(turn('L', 90)) // N
-// console.log(turn('L', 180)) // w
+// Two star
+
+const waypoint = { x: 10, y: 1 };
+const ship = { x: 0, y: 0 };
+
+const moveWaypoint = ({ latitude, amount }) => {
+  if (latitude === 'N') waypoint.y += amount;
+  if (latitude === 'S') waypoint.y -= amount;
+  if (latitude === 'E') waypoint.x += amount;
+  if (latitude === 'W') waypoint.x -= amount;
+};
+
+const rotate = ({ direction, amount }) => {
+  if (amount === 0) return;
+  const { x, y } = waypoint;
+  if (direction === 'R') {
+    // (x, y) replaced with (y, -x)
+    waypoint.x = y;
+    waypoint.y = -1 * x;
+  }
+  if (direction === 'L') {
+    // (x, y) replaced with (-y, x)
+    waypoint.x = -1 * y;
+    waypoint.y = x;
+  }
+  rotate({ direction, amount: amount - 90 });
+};
+
+const moveToWaypoint = ({ times }) => {
+  for(let i = 0; i < times; i++) {
+    ship.x += waypoint.x;
+    ship.y += waypoint.y;
+  }
+};
+
+// F45, R90, S5 etc.
+for(instruction of instructions) {
+  const [action, stringValue] = instruction.split(/(\d+)/)
+  const value = Number(stringValue)
+
+  if (['N', 'S', 'E', 'W'].includes(action)) {
+    moveWaypoint({ latitude: action, amount: value });
+  } else if (['L', 'R'].includes(action)) {
+    direction = rotate({ direction: action, amount: value });
+  } else if (action == 'F') {
+    moveToWaypoint({ times: value });
+  }
+}
+
+console.log(manhattanDistance(ship.x, ship.y));

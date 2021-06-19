@@ -8,8 +8,7 @@ const earliestDeparture = Number(earliestDep)
 const busses = bussesInformation
   .split(',')
   .map(bus => {
-    if (bus === 'x') return;
-    return Number(bus);
+    return Number(bus) || bus;
   });
 
 const earliestBus = ({ now }) => {
@@ -25,7 +24,31 @@ const earliestBus = ({ now }) => {
   }  
 };
 
-const { time, busNumber} = earliestBus({ now: earliestDeparture })
-const waited = time - earliestDeparture;
-console.log(waited * busNumber)
+const { waitingTime, busNumber} = earliestBus({ now: earliestDeparture })
+const waited = waitingTime - earliestDeparture;
+// console.log(waitingTime * busNumber);
 
+// Two star
+
+const validSubsequent = (time, bus, ...busses) => {
+  if (bus === 'x') return validSubsequent(time + 1, ...busses);
+  if (time % bus === 0) return validSubsequent(time + 1, ...busses);
+  if (bus === undefined) return true;
+  return false
+}
+
+const firstSubsequentBusses = (busses) => {
+  let time = 0;
+  while (true) {
+    if (validSubsequent(time, ...busses)) return time;
+    time = time + 1;
+  }
+}
+
+
+console.log(firstSubsequentBusses([17, 'x', 13, 19])); // 3417
+console.log(firstSubsequentBusses([67, 7, 59, 61])); // 754018
+console.log(firstSubsequentBusses([67, 'x', 7, 59, 61])); // 779210
+console.log(firstSubsequentBusses([67, 7, 'x', 59, 61])); // 1261476
+console.log(firstSubsequentBusses([1789, 37, 47, 1889])); // 1202161486
+// console.log(firstSubsequentBusses(busses)); // two-star

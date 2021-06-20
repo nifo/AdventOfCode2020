@@ -4,29 +4,18 @@ const instructions = fs.readFileSync('./input14.txt')
                 .toString()
                 .split('\n');
 
+const memory1 = {};
+const memory2 = {};
+let mask = '';
 
-const zip = (A, B) => {
-  const result = [];
-  for(let i = 0; i < (Math.min(A.length, B.length)); i++) {
-    result.push([A[i], B[i]]);
-  }
-  return result;
-}
-
-
-const memory = {};
-let mask = ''
-
-const update = ({ memoryAdress, value }) => {
+const applyMask = (value) => {
   const binary = Number(value).toString(2).padStart(36, '0');
-  const masked = zip(binary, mask)
-    .map(([b, m]) => {
-      if(m === 'X') return b;
-      if(m === '0') return '0';
-      if(m === '1') return '1';
+  const masked = [...mask].map((m, i) => {
+    if (m === '0') return m;
+    if (m === '1') return m;
+    if (m === 'X') return binary[i];
   }).join('');
-  const decimal = Number('0b' + masked);
-  memory[memoryAdress] = decimal;
+  return Number('0b' + masked);
 }
 
 const floating = (text, parsed = '') => {
@@ -34,27 +23,22 @@ const floating = (text, parsed = '') => {
   if (char === undefined) return parsed;
   if (char === '1' || char === '0') return floating(unparsed, parsed + char);
   if (char === 'X') {
-    return floating(unparsed, parsed + '0') + '@' + floating(unparsed, parsed + '1');
+    return floating(unparsed, parsed + '0') + ':' + floating(unparsed, parsed + '1');
   }
 }
 
-console.log(floating('00X11X00').split('@'))
-
-const updateTwoStar = ({ memoryAdress, value }) => {
+const adressMask = (memoryAdress) => {
   const binary = Number(memoryAdress).toString(2).padStart(36, '0');
-  const resultWithFloating = zip(binary, mask)
-    .map(([b, m]) => {
-      if(m === '0') return b;
-      if(m === '1') return '1';
-      if(m === 'X') return 'X';
-  }).join('');
-  floating(resultWithFloating)
-    .split('@')
-    .forEach(address => {
-      memory[Number('0b' + address)] = value;
+  const simpleMask = [...mask].map((m, i) => {
+    if(m === '0') return binary[i];
+    if(m === '1') return m;
+    if(m === 'X') return m; 
   });
+  const addressesHandledFloating = floating(simpleMask)
+    .split(':')
+    .map(address => Number('0b' + address));
+  return addressesHandledFloating;
 }
-
 
 for(const instruction of instructions) {
   if (instruction.startsWith('mask')) {
@@ -62,9 +46,15 @@ for(const instruction of instructions) {
   }
   if (instruction.startsWith('mem')) {
     const [memoryAdress, value] = instruction.match(/\d+/g).map(Number);
-    updateTwoStar({ memoryAdress, value })
+
+    memory1[memoryAdress] = applyMask(value);
+
+    for(const adress of adressMask(memoryAdress)) {
+      memory2[adress] = value;
+    }
   }
 }
 
 const sum = (acc, curr) => acc + curr;
-console.log('sum', Object.values(memory).reduce(sum, 0));
+console.log('sum 1', Object.values(memory1).reduce(sum, 0));
+console.log('sum 2', Object.values(memory2).reduce(sum, 0));
